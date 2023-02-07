@@ -25,6 +25,7 @@ public class OhMyEmail {
     private String             text;
     private String             html;
     private List<MimeBodyPart> attachments = new ArrayList<MimeBodyPart>();
+    private Boolean readReply;//已读回执
 
     private OhMyEmail() {
     }
@@ -265,6 +266,14 @@ public class OhMyEmail {
         return attachmentPart;
     }
 
+    public OhMyEmail readReply(Boolean readReply){
+        if (readReply == null) {
+            throw new IllegalArgumentException("Read reply email address is null");
+        }
+        this.readReply = readReply;
+        return this;
+    }
+
     public void send() throws SendMailException {
         if (text == null && html == null) {
             throw new IllegalArgumentException("At least one context has to be provided: Text or Html");
@@ -303,6 +312,10 @@ public class OhMyEmail {
 
             msg.setContent(content);
             msg.setSentDate(new Date());
+            //2023年02月07日10:42:40 添加已读回执
+            if (readReply != null && readReply){
+                msg.addHeader("Disposition-Notification-To", "1");
+            }
             Transport.send(msg);
         } catch (Exception e) {
             throw new SendMailException(e);
